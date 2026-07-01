@@ -1,0 +1,48 @@
+# ============================================================
+# tarshow 部署配置 — 复制为 config 并填写实际值
+#   cp config.example config
+# ============================================================
+
+# ---------- 源服务器（要备份的项目所在机器）----------
+SOURCE_HOST="192.168.1.10"
+SOURCE_USER="root"
+SOURCE_PORT="22"
+SOURCE_PATH="/var/www/myproject"
+
+# ---------- 目标服务器（部署解压的机器）----------
+DEST_HOST="192.168.1.20"
+DEST_USER="root"
+DEST_PORT="22"
+DEST_PATH="/var/www/myproject"
+
+# ---------- 备份设置 ----------
+# 备份文件名前缀（最终: {BACKUP_NAME}_YYYYMMDD_HHMMSS.tar.gz）
+BACKUP_NAME="myproject"
+
+# 目标服务器上保留最近 N 份备份，0 = 不保留（解压后删除 tar.gz）
+KEEP_BACKUPS="3"
+
+# 目标服务器备份存放目录（KEEP_BACKUPS > 0 时生效）
+BACKUP_DIR_ON_DEST="/var/backups/deploy"
+
+# 本地临时目录（脚本在本机运行时中转用，可留 /tmp）
+LOCAL_TMP_DIR="/tmp/tarshow"
+
+# ---------- SSH ----------
+# 留空则使用默认密钥 (~/.ssh/id_rsa)
+SSH_KEY_PATH=""
+
+# SSH 额外参数，如跳板机: "-J jump@1.2.3.4"
+SSH_EXTRA_OPTS=""
+
+# ---------- 部署模式 ----------
+# backup  : 打包 → 上传 tar.gz → 解压（可保留备份，适合回滚）
+# stream  : 管道直传，不落地 tar.gz（最快，无备份）
+DEPLOY_MODE="backup"
+
+# 解压前是否清空目标目录（谨慎！true 会删除 DEST_PATH 下所有文件）
+CLEAN_DEST_BEFORE_EXTRACT="false"
+
+# 解压后执行的钩子脚本（在目标服务器上，留空跳过）
+# 例: "/opt/scripts/post-deploy.sh"
+POST_DEPLOY_HOOK=""

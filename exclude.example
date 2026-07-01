@@ -1,0 +1,23 @@
+# tar 打包排除规则（每行一条，支持 glob）
+# 复制为 exclude 并按项目调整: cp exclude.example exclude
+
+.git
+.gitignore
+node_modules
+vendor
+__pycache__
+*.pyc
+.env
+.env.*
+*.log
+logs
+tmp
+cache
+.DS_Store
+Thumbs.db
+.idea
+.vscode
+*.swp
+coverage
+dist
+build
