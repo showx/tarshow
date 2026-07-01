@@ -28,6 +28,12 @@ BACKUP_DIR_ON_DEST="/var/backups/deploy"
 # 本地临时目录（脚本在本机运行时中转用，可留 /tmp）
 LOCAL_TMP_DIR="/tmp/tarshow"
 
+# 本地备份存放目录（DEPLOY_MODE=local 或 --backup 时生效）
+LOCAL_BACKUP_DIR="./backups"
+
+# 本地保留最近 N 份备份，0 = 不自动清理
+KEEP_LOCAL_BACKUPS="5"
+
 # ---------- SSH ----------
 # 留空则使用默认密钥 (~/.ssh/id_rsa)
 SSH_KEY_PATH=""
@@ -38,6 +44,7 @@ SSH_EXTRA_OPTS=""
 # ---------- 部署模式 ----------
 # backup  : 打包 → 上传 tar.gz → 解压（可保留备份，适合回滚）
 # stream  : 管道直传，不落地 tar.gz（最快，无备份）
+# local   : 仅备份到本机 LOCAL_BACKUP_DIR（也可用 ./deploy.sh --backup）
 DEPLOY_MODE="backup"
 
 # 解压前是否清空目标目录（谨慎！true 会删除 DEST_PATH 下所有文件）
