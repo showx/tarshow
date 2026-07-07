@@ -31,6 +31,9 @@ LOCAL_TMP_DIR="/tmp/tarshow"
 # 本地备份存放目录（DEPLOY_MODE=local 或 --backup 时生效）
 LOCAL_BACKUP_DIR="./backups"
 
+# 本地上传源目录（DEPLOY_MODE=push 或 --push 时生效）
+LOCAL_SOURCE_PATH="."
+
 # 本地保留最近 N 份备份，0 = 不自动清理
 KEEP_LOCAL_BACKUPS="5"
 
@@ -45,6 +48,7 @@ SSH_EXTRA_OPTS=""
 # backup  : 打包 → 上传 tar.gz → 解压（可保留备份，适合回滚）
 # stream  : 管道直传，不落地 tar.gz（最快，无备份）
 # local   : 仅备份到本机 LOCAL_BACKUP_DIR（也可用 ./deploy.sh --backup）
+# push    : 本地上传到源服务器 SOURCE_PATH（也可用 ./deploy.sh --push）
 DEPLOY_MODE="backup"
 
 # 解压前是否清空目标目录（谨慎！true 会删除 DEST_PATH 下所有文件）

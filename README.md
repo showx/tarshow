@@ -23,6 +23,15 @@
 └─────────────┘                └──────────────┘
 ```
 
+本地上传到源服务器（`push`），与 `pull` 方向相反：
+
+```
+本机                             源服务器
+┌──────────────┐                ┌─────────────┐
+│ LOCAL_SOURCE │ ── tar.gz ──►  │ SOURCE_PATH │
+└──────────────┘                └─────────────┘
+```
+
 ## 快速开始
 
 ### 方式 A：无配置，直接传参（推荐临时使用）
@@ -33,6 +42,15 @@ chmod +x deploy.sh
 # 备份远程目录到本机
 ./deploy.sh pull root@192.168.1.10:/var/www/myproject
 ./deploy.sh pull root@10.0.0.1:/var/www/app -o ~/backups -p 2222
+
+# 上传本地目录到远程服务器
+./deploy.sh push ./dist root@192.168.1.10:/var/www/myproject
+
+# 上传已有 tar.gz 备份包并解压（如 pull 下载的备份）
+./deploy.sh push ./backups/www_20260707_141949.tar.gz root@192.168.1.10:/var/www/myproject
+
+# 指定本地目录 + 解压前清空远程目录
+./deploy.sh push root@10.0.0.1:/var/www/app -f ./dist --clean
 
 # 同步部署到另一台服务器（管道直传，最快）
 ./deploy.sh sync root@10.0.0.1:/var/www/app root@10.0.0.2:/var/www/app
@@ -70,13 +88,15 @@ chmod +x deploy.sh
 | 命令 | 说明 | 需要 config |
 |------|------|-------------|
 | `pull SOURCE [选项]` | 备份远程目录到本机 | 否 |
+| `push [LOCAL] DEST [选项]` | 上传本地目录到远程 | 否 |
 | `sync SOURCE DEST [选项]` | 同步部署 | 否 |
 | `./deploy.sh` | 按 config 部署 | 是 |
 | `./deploy.sh --backup` | 按 config 本地备份 | 是 |
+| `./deploy.sh --push` | 按 config 上传到源服务器 | 是 |
 | `./deploy.sh --check` | 测试连通性 | 是 |
 | `./deploy.sh --rollback` | 回滚 | 是 |
 
-`pull` / `sync` 若存在 `config`，会先读取作为默认值，命令行参数优先覆盖。
+`pull` / `push` / `sync` 若存在 `config`，会先读取作为默认值，命令行参数优先覆盖。
 
 ## 配置说明
 
@@ -84,8 +104,9 @@ chmod +x deploy.sh
 |--------|------|
 | `SOURCE_*` | 源服务器地址、用户、端口、项目路径 |
 | `DEST_*` | 目标服务器地址、用户、端口、部署路径 |
-| `DEPLOY_MODE` | `backup` / `stream` / `local`（仅备份到本机） |
+| `DEPLOY_MODE` | `backup` / `stream` / `local`（仅备份到本机）/ `push`（上传到源服务器） |
 | `LOCAL_BACKUP_DIR` | 本地备份存放目录（默认 `./backups`） |
+| `LOCAL_SOURCE_PATH` | 本地上传源目录（`push` 模式，默认 `.`） |
 | `KEEP_LOCAL_BACKUPS` | 本地保留备份份数，0 = 不自动清理 |
 | `KEEP_BACKUPS` | 目标服务器保留备份份数，0 = 解压后删除 |
 | `CLEAN_DEST_BEFORE_EXTRACT` | 解压前是否清空目标目录 |
@@ -95,6 +116,7 @@ chmod +x deploy.sh
 
 ```bash
 ./deploy.sh --backup     # 按 config 本地备份
+./deploy.sh --push       # 按 config 上传到源服务器
 ./deploy.sh --check      # 测试 SSH 和目录
 ./deploy.sh --rollback   # 回滚到最新备份（需 KEEP_BACKUPS > 0）
 ./deploy.sh --help       # 帮助
@@ -130,9 +152,9 @@ POST_DEPLOY_HOOK="/opt/scripts/post-deploy.sh"
 
 ## 模式对比
 
-| | backup | stream | local |
-|---|--------|--------|-------|
-| 速度 | 较慢（三次传输） | 最快（一次管道） | 较快（管道到本机） |
-| 保留备份 | 目标服务器，可回滚 | 不支持 | 本机，可手动保留 |
-| 需要目标服务器 | 是 | 是 | 否 |
-| 适用场景 | 生产部署、回滚 | 开发/测试快速同步 | 定期备份、归档 |
+| | backup | stream | local | push |
+|---|--------|--------|-------|------|
+| 速度 | 较慢（三次传输） | 最快（一次管道） | 较快（管道到本机） | 较快（管道到远程） |
+| 保留备份 | 目标服务器，可回滚 | 不支持 | 本机，可手动保留 | 不支持 |
+| 需要目标服务器 | 是 | 是 | 否 | 否 |
+| 适用场景 | 生产部署、回滚 | 开发/测试快速同步 | 定期备份、归档 | 本地开发完上传部署 |
